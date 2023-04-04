@@ -173,6 +173,7 @@ runs:
         context: ${{ inputs.context }}
         file: ${{ inputs.file }}
         labels: ${{ steps.metadata.outputs.labels }}
+        platforms: linux/amd64
         push: ${{ inputs.push }}
         secrets: ${{ inputs.secrets }}
         tags: ${{ steps.metadata.outputs.tags }}
