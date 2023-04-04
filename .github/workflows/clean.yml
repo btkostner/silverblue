@@ -3,7 +3,7 @@ name: Clean
 on:
   schedule:
     - cron: '10 10 * * *'
-  workflow-dispatch:
+  workflow_dispatch:
 
 jobs:
   GHCR:
