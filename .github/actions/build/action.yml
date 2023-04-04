@@ -154,7 +154,6 @@ runs:
           ${{ inputs.labels }}
         tags: |
           type=edge
-          type=raw,value=37
           type=schedule,pattern={{date 'YYYYMMDD'}}
           type=semver,pattern={{major}}.{{minor}}
           type=semver,pattern={{version}}
