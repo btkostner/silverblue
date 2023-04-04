@@ -18,6 +18,10 @@ I do not provide ISO downloads for this. To do a clean install, you will need to
 sudo rpm-ostree rebase --experimental ostree-unverified-registry:ghcr.io/btkostner/silverblue:edge
 ```
 
+## Changes
+
+- Exports a ton of env variables to enforce the usage of the [XDG Base Directory Specification](https://xdgbasedirectoryspecification.com/). Use [xdg-ninja](https://github.com/b3nj5m1n/xdg-ninja) to ensure this list is kept up to date and working.
+
 ## License
 
 Unless otherwise stated, code in this repository is licensed under [Apache License 2.0](LICENSE)
