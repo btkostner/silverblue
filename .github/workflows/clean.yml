@@ -3,8 +3,7 @@ name: Clean
 on:
   schedule:
     - cron: '10 10 * * *'
-  push:
-    workflow-dispatch:
+  workflow-dispatch:
 
 jobs:
   GHCR:
@@ -20,7 +19,7 @@ jobs:
         uses: snok/container-retention-policy@v2
         with:
           image-names: silverblue
-          cut-off: two weeks ago
+          cut-off: two weeks ago UTC
           timestamp-to-use: updated_at
           account-type: personal
           skip-tags: edge, v*
