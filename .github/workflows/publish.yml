@@ -9,6 +9,7 @@ on:
     paths-ignore:
       - '**.md'
       - '**.txt'
+    workflow-dispatch:
 
 jobs:
   Publish:
