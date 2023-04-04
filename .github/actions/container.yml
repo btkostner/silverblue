@@ -1,0 +1,197 @@
+name: Build Containerfile
+
+branding:
+  color: blue
+  icon: anchor
+
+description: >-
+  GitHub Composite Action for building and optionally pushing the Containerfile.
+
+inputs:
+  build-args:
+    description: >-
+      (Optional) A list of extra build args to pass to the build step.
+    required: false
+    type: string
+  cache:
+    default: true
+    description: >-
+      (Optional) Enables caching built docker layers in the GitHub actions
+      cache. This is highly recommended to speed up builds. Note, if you are
+      not getting a speed bump, check your .dockerignore file to ensure you
+      are not sending files that would break layer caching, like the .git
+      folder.
+    required: false
+    type: boolean
+  context:
+    default: "."
+    description: >-
+      (Optional) The build context to use when building the container image.
+    required: false
+    type: string
+  file:
+    default: Containerfile
+    description: >-
+      (Optional) The path to the Containerfile we are building.
+    required: false
+    type: string
+  github-token:
+    default: ${{ github.token }}
+    description: >-
+      (Optional) Used for log in to GHCR.
+    required: false
+    type: string
+  images:
+    description: >-
+      (Optional) A list of docker images to use when building and
+      publishing. By default, this will match the repository being built.
+    required: false
+    type: string
+  labels:
+    description: >-
+      (Optional) A list of labels to be added to the default ones when
+      pushing the image.
+    required: false
+    type: string
+  push:
+    default: false
+    description: >-
+      (Optional) Push the final built image to the set registry.
+    required: false
+    type: boolean
+  secrets:
+    description: >-
+      (Optional) A list of extra secrets to pass to the build step.
+    required: false
+    type: string
+  tags:
+    description: >-
+      (Optional) A list of tags to be added to the default ones when
+      pushing the image.
+    required: false
+    type: string
+
+outputs:
+  digest:
+    description: >-
+      The docker build image digest.
+    value: ${{ steps.build.outputs.digest }}
+  image:
+    description: >-
+      The first docker image published. This can be used as reference when
+      deploying the image.
+    value: ${{ steps.outputs.outputs.image }}
+  images:
+    description: >-
+      A list of all the published docker images.
+    value: ${{ steps.inputs.output.images }}
+  labels:
+    description: >-
+      A list of all docker labels used when publishing.
+    value: ${{ steps.metadata.outputs.labels }}
+  metadata:
+    description: >-
+      The docker build result metadata
+    value: ${{ steps.build.outputs.metadata }}
+  tag:
+    description: >-
+      A sha specific tag used when publishing the docker image. This is the most
+      specific tag that won't get repeated and should be used when deploying the
+      image.
+    value: ${{ steps.outputs.outputs.tag }}
+  tags:
+    description: >-
+      A list of all docker tags that were published.
+    value: ${{ steps.metadata.outputs.tags }}
+
+runs:
+  using: composite
+  steps:
+    - id: inputs
+      name: Get Inputs
+      uses: actions/github-script@v6
+      env:
+        INPUT_CACHE: ${{ inputs.cache }}
+        INPUT_IMAGES: ${{ inputs.images }}
+      with:
+        script: |
+          if (core.getBooleanInput('cache')) {
+            core.setOutput('cache-from', 'type=gha')
+            core.setOutput('cache-to', 'type=gha,mode=max')
+            core.info('Using GitHub cache for maximum performance')
+          } else {
+            core.setOutput('cache-from', '')
+            core.setOutput('cache-to', '')
+            core.info('Cache is disabled')
+          }
+
+          const images = core.getMultilineInput('images')
+          if (images.length > 0) {
+            core.setOutput('images', process.env.INPUT_IMAGES)
+          } else {
+            const image = `ghcr.io/${context.repo.owner}/${context.repo.repo}`.toLowerCase()
+            core.setOutput('images', image)
+            core.info(`Setting docker image to default ${image}`)
+          }
+
+    - name: Login to GHCR
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ input.github-token }}
+
+    - id: metadata
+      name: Get Metadata
+      uses: docker/metadata-action@v4
+      with:
+        flavor: |
+          latest=auto
+        github-token: ${{ inputs.github-token }}
+        images: |
+          ${{ steps.inputs.outputs.images }}
+        labels: |
+          ${{ inputs.labels }}
+        tags: |
+          type=edge
+          type=raw,value=37
+          type=schedule,pattern={{date 'YYYYMMDD'}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{version}}
+          type=sha
+          ${{ inputs.tags }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - id: build
+      name: Build
+      uses: docker/build-push-action@v4
+      with:
+        build-args: ${{ inputs.build-args }}
+        cache-from: ${{ steps.inputs.outputs.cache-from }}
+        cache-to: ${{ steps.inputs.outputs.cache-to }}
+        context: ${{ inputs.context }}
+        file: ${{ inputs.file }}
+        labels: ${{ steps.metadata.outputs.labels }}
+        push: ${{ inputs.push }}
+        secrets: ${{ inputs.secrets }}
+        tags: ${{ steps.metadata.outputs.tags }}
+
+    - id: outputs
+      name: Get Outputs
+      uses: actions/github-script@v6
+      env:
+        BUILD_OUTPUT: ${{ steps.metadata.outputs.json }}
+      with:
+        script: |
+            const metadata = JSON.parse(process.env.BUILD_OUTPUT)
+            const shaUrl = metadata.tags.find((t) => t.includes(':sha-'))
+
+            if (shaUrl == null) {
+              core.error('Unable to find sha tag of image')
+            } else {
+              const [image, tag] = shaUrl.split(':')
+              core.setOutput('image', image)
+              core.setOutput('tag', tag)
+            }

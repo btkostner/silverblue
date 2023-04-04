@@ -1,0 +1,30 @@
+name: Publish
+
+on:
+  schedule:
+    - cron: '20 20 * * *'
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
+
+jobs:
+  Publish:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build
+        uses: ./.github/actions/container.yml
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push: true

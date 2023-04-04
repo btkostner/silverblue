@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
+
+jobs:
+  Build:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build
+        uses: ./.github/actions/container.yml
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push: false
