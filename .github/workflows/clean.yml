@@ -1,0 +1,27 @@
+name: Clean
+
+on:
+  schedule:
+    - cron: '10 10 * * *'
+  push:
+    workflow-dispatch:
+
+jobs:
+  GHCR:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Clean
+        uses: snok/container-retention-policy@v2
+        with:
+          image-names: silverblue
+          cut-off: two weeks ago
+          timestamp-to-use: updated_at
+          account-type: personal
+          skip-tags: edge, v*
+          token: ${{ secrets.GITHUB_TOKEN }}
