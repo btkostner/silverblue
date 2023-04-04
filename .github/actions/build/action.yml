@@ -139,7 +139,7 @@ runs:
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
-        password: ${{ input.github-token }}
+        password: ${{ inputs.github-token }}
 
     - id: metadata
       name: Get Metadata
