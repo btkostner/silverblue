@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build
-        uses: ./.github/actions/container.yml
+        uses: ./.github/actions/build
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           push: true
