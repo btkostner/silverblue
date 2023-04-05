@@ -21,6 +21,7 @@ sudo rpm-ostree rebase --experimental ostree-unverified-registry:ghcr.io/btkostn
 ## Changes
 
 - Exports a ton of env variables to enforce the usage of the [XDG Base Directory Specification](https://xdgbasedirectoryspecification.com/). Use [xdg-ninja](https://github.com/b3nj5m1n/xdg-ninja) to ensure this list is kept up to date and working.
+- Installs [`bat`](https://github.com/sharkdp/bat) and replaces `cat`
 
 ## License
 
