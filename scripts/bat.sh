@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Building Bat"
+echo "Installing Bat"
 
 cd "$(mktemp -d)"
 

@@ -1,0 +1,39 @@
+[commit]
+  gpgsign = true
+
+[core]
+  pager = delta
+
+[delta]
+  light = false
+  line-numbers = true
+  navigate = true
+  side-by-side = true
+
+[diff]
+  colorMoved = default
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = /opt/1Password/op-ssh-sign
+
+[interactive]
+  diffFilter = delta --color-only
+
+[init]
+  defaultBranch = main
+
+[merge]
+  conflictstyle = diff3
+
+[push]
+  autoSetupRemove = true
+  default = current
