@@ -21,7 +21,10 @@ sudo rpm-ostree rebase --experimental ostree-unverified-registry:ghcr.io/btkostn
 ## Changes
 
 - Exports a ton of env variables to enforce the usage of the [XDG Base Directory Specification](https://xdgbasedirectoryspecification.com/). Use [xdg-ninja](https://github.com/b3nj5m1n/xdg-ninja) to ensure this list is kept up to date and working.
+- Installs [1Password](https://1password.com) and CLI (not flatpak for browser integration)
 - Installs [`bat`](https://github.com/sharkdp/bat) and replaces `cat`
+- Installs [`delta`](https://github.com/dandavison/delta) for better `git diff`
+- Configures `git` to use 1Password for authentication and `delta` for diffs
 
 ## License
 

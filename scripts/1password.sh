@@ -6,22 +6,23 @@ echo "Installing 1Password"
 
 cd "$(mktemp -d)"
 
-wget -q https://downloads.1password.com/linux/tar/stable/x86_64/1password-latest.tar.gz
+wget -q https://downloads.1password.com/linux/rpm/stable/x86_64/1password-latest.rpm
 
-mkdir 1Password
-tar --strip-components=1 -xf 1password-latest.tar.gz -C 1Password
+mkdir /var/opt
+rpm -ivh ./1password-latest.rpm
 
 # This is where the mess starts. 1Password is installed to /opt/1Password with
 # No way to change it. RIP. So we kinda _hack_ it and hope nothing is hard set
 # in the compiled code :(
-grep -rl "/opt/1Password" . | xargs sed -i 's/\/opt\/1Password/\/usr\/share\/1Password/g'
+mv /var/opt/1Password /usr/lib/1Password
 
-mv 1Password /usr/share/1Password
+# Rewrite some hard set paths here
+grep -rl "/opt/1Password" /usr/lib/1Password | xargs sed -i 's/\/opt\/1Password/\/usr\/lib\/1Password/g'
+grep -rl "/opt/1Password" /usr/share/applications | xargs sed -i 's/\/opt\/1Password/\/usr\/lib\/1Password/g'
 
-/usr/share/1Password/after-install.sh
-
-cp -r /usr/share/1Password/resources/icons/hicolor /usr/share/icons/
-cp /usr/share/1Password/resources/1password.desktop /usr/share/applications/1password.desktop
+# And redo the binary link
+rm /usr/bin/1password
+ln -s /usr/lib/1Password/1password /usr/bin/1password
 
 # Then we install the 1password CLI binary as well
 
