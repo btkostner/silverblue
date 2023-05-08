@@ -9,6 +9,8 @@ RUN /tmp/bat.sh
 RUN /tmp/delta.sh
 RUN /tmp/git.sh
 
+RUN /tmp/cleanup.sh
+
 RUN rpm-ostree cleanup -m && ostree container commit
 
 # Overlay custom files on the fs
