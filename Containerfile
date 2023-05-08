@@ -7,6 +7,7 @@ ADD scripts/* /tmp/
 # RUN /tmp/1password.sh
 RUN /tmp/bat.sh
 RUN /tmp/delta.sh
+RUN /tmp/git.sh
 
 RUN rpm-ostree cleanup -m && ostree container commit
 
